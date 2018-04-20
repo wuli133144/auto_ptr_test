@@ -1,5 +1,3 @@
-
-
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -55,7 +53,7 @@ class personDao:public TC_EnableSharedFromThis<personDao>{
 };
 
 
-
+//xiaoming:public personDao
 class xiaoming:public personDao{
          public:
 		 	 xiaoming(){}
@@ -77,6 +75,7 @@ class xiaoming:public personDao{
 private:
         string name;
         int32_t age;
+		
 };
 
 
@@ -90,7 +89,7 @@ public:
 			m_xiaoming=new xiaoming("xxx",12);
 		}
 	
-	}		
+	    }		
 		void eat(){
 		 m_xiaoming->eat();
 		}
@@ -100,11 +99,9 @@ public:
 		}
 		
 		bool isvalid(){
-		 return m_xiaoming->isvalid();
+		    return m_xiaoming->isvalid();
 		}
 		
-
-
   private:
   	xiaoming  *m_xiaoming;
 
@@ -112,7 +109,7 @@ public:
 
 };
 
-
+/*
 class xiaomingprox:public personDao{
 public:
     typedef   TC_SharedPtr<personDao>  smart_ptr_type;
@@ -132,7 +129,103 @@ public:
   private:
   	 smart_ptr_type m_ptr;        
 };
+*/
+//policy class
 
+template<typename T>
+class creator{
+ static T * NEW(){
+       return new T;
+ }
+
+};
+
+
+template<typename T>
+class  creatormalloc{
+  static T * NEW(){
+      void * p=malloc(sizeof(T));
+	  if(p==NULL)return NULL;
+	  return new (p) T;
+ 
+  }
+
+
+};
+
+template <class T>
+struct type_2_type{
+      typedef   T  type_original_t;
+};
+
+
+template<int v>
+struct int2type{
+
+    enum{value=v;}
+
+};
+
+
+
+template <class  U,bool isbool>
+class animal{
+ public:
+ 	void todo(const U *	u,int2type<true>)
+ 	{
+ 	   std::cout<<"int2type[true]"<<std::endl;
+ 	}
+
+	void todo(const U * u,int2type<false>)
+ 	{
+ 	  std::cout<<"int2type[false]"<<std::endl;
+ 	}
+
+ public:
+   void todo(const U *u)
+   { 
+          todo(u,int2type<isbool>);
+       
+   }
+
+};
+
+
+
+
+
+
+
+
+
+
+
+
+template<class U,class T>
+
+class creator_new{
+
+public:
+  static T * create(const U *args,type_2_type<T>);
+   
+
+
+};
+
+
+template<class U,class T>
+T* create(const U *args,type_2_type<T>){
+   return new T(args);
+
+}
+
+
+template<class U,class T>
+T*create(const U*args,type_2_type<string>)
+
+{
+             return new string(args);
+}
 
 
 
@@ -145,26 +238,30 @@ int main(int argc, char * argv [ ])
 
        std::cout<<"=================test shared_ptr=====================\n";
 
- 	  std::cout<<"dao 具有唯一权限么？:"<<dao.unique()<<dao.usecount()<<std::endl;
-	  dao->eat();
-
-	  //TC_EnableSharedFromThis
-
-
-	   TC_SharedPtr<personDao>proxyxiaoming(new xiaomingprox());
-
-	   TC_SharedPtr<personDao> a=proxyxiaoming->get();
+ 	   std::cout<<"dao 具有唯一权限么？:"<<dao.unique()<<dao.usecount()<<std::endl;
+	   dao->eat();
 	   
-	  
+	   //TC_EnableSharedFromThis
+	   //TC_SharedPtr<personDao>proxyxiaoming(new xiaomingprox());
+	   //TC_SharedPtr<personDao> a=proxyxiaoming->get();
 
-	  
+       //class template test
+
+
+	   creator<int> a=new creator<int>();
+	   //a.NEW()
+	   creator<int>a;
+	   int *pint=a.NEW()
+
+
+
+
+
+
+
 
 	   
-
 	   
        return 0;
 
 }
-
-
-
